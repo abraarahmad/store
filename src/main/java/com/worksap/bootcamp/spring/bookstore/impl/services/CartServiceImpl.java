@@ -4,10 +4,13 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartClearer;
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartGetter;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
+import com.worksap.bootcamp.spring.bookstore.spec.dao.DaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
@@ -18,6 +21,7 @@ import com.worksap.bootcamp.spring.bookstore.spec.dto.Item;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
 import com.worksap.bootcamp.spring.bookstore.spec.services.CartService;
 
+@Component
 public class CartServiceImpl implements CartService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static final int CART_MAX_AMOUNT = 9;
@@ -27,11 +31,12 @@ public class CartServiceImpl implements CartService {
 	private final StockDao stockDao;
 	private final Transaction transaction;
 
-	public CartServiceImpl(Transaction transaction, CartItemRelationDao cartDao, ItemDao itemDao, StockDao stockDao) {
-		this.cartDao = cartDao;
-		this.itemDao = itemDao;
-		this.transaction = transaction;
-		this.stockDao = stockDao;
+	@Autowired
+	public CartServiceImpl(DaoFactory daoFactory) {
+		this.cartDao = daoFactory.getCartItemRelationDao();
+		this.itemDao = daoFactory.getItemDao();
+		this.transaction = daoFactory.getTransaction();
+		this.stockDao = daoFactory.getStockDao();
 	}
 
 	@Override

@@ -19,12 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 //import javax.ws.rs.core.MediaType;
 //import javax.ws.rs.core.Response;
 
-
-
-
-
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,20 +55,21 @@ public class BookStoreController {
 	@Autowired
 	private HttpServletRequest request;
 
-	private final ServiceFactory serviceFactory;
+	@Autowired
+	private ServiceFactory serviceFactory;
 
 	public BookStoreController() {
-		try {
-			serviceFactory = (ServiceFactory) Class.forName(
-							"com.worksap.bootcamp.spring.bookstore.impl.services.DefaultServiceFactory")
-					.newInstance();
-		} catch (InstantiationException e) {
-			throw new IllegalStateException(e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException(e);
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
-		}
+//		try {
+//			serviceFactory = (ServiceFactory) Class.forName(
+//							"com.worksap.bootcamp.spring.bookstore.impl.services.DefaultServiceFactory")
+//					.newInstance();
+//		} catch (InstantiationException e) {
+//			throw new IllegalStateException(e);
+//		} catch (IllegalAccessException e) {
+//			throw new IllegalStateException(e);
+//		} catch (ClassNotFoundException e) {
+//			throw new IllegalStateException(e);
+//		}
 	}
 
 //	@GET

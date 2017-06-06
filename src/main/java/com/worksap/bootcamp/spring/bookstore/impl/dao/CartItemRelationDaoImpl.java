@@ -10,11 +10,13 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItemRelation;
 
+@Component
 public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

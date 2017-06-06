@@ -8,10 +8,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartClearer;
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartGetter;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
+import com.worksap.bootcamp.spring.bookstore.spec.dao.DaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderDetailDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderHeaderDao;
@@ -24,6 +27,7 @@ import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderHeader;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
 import com.worksap.bootcamp.spring.bookstore.spec.services.OrderService;
 
+@Component
 public class OrderServiceImpl implements OrderService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -34,17 +38,15 @@ public class OrderServiceImpl implements OrderService {
 	private final ItemDao itemDao;
 	private final Transaction transaction;
 
-	public OrderServiceImpl(OrderHeaderDao orderHeaderDao,
-			OrderDetailDao orderDetailDao, StockDao stockDao,
-			CartItemRelationDao cartDao, ItemDao itemDao,
-			Transaction transaction) {
+	@Autowired
+	public OrderServiceImpl(DaoFactory daoFactory) {
 		super();
-		this.orderHeaderDao = orderHeaderDao;
-		this.orderDetailDao = orderDetailDao;
-		this.stockDao = stockDao;
-		this.cartDao = cartDao;
-		this.itemDao = itemDao;
-		this.transaction = transaction;
+		this.orderHeaderDao = daoFactory.getOrderHeaderDao();
+		this.orderDetailDao = daoFactory.getOrderDetailDao();
+		this.stockDao = daoFactory.getStockDao();
+		this.cartDao = daoFactory.getCartItemRelationDao();
+		this.itemDao = daoFactory.getItemDao();
+		this.transaction = daoFactory.getTransaction();
 	}
 
 	private static class StockCartItemRelation {

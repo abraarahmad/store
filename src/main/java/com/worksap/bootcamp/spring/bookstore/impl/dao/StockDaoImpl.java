@@ -11,11 +11,13 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
 
+@Component
 public class StockDaoImpl implements StockDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

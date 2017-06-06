@@ -16,8 +16,10 @@ import java.util.List;
 
 
 
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,20 +39,23 @@ import com.worksap.bootcamp.spring.bookstore.spec.services.ServiceFactory;
 @Controller
 @RequestMapping(value = "/administrator", produces = "text/html")
 public class AdministratorController {
-	private ServiceFactory serviceFactory = null;
+	
+
+	@Autowired
+	private ServiceFactory serviceFactory;
 
 	public AdministratorController(){
-		try {
-			serviceFactory = (ServiceFactory) Class.forName(
-							"com.worksap.bootcamp.spring.bookstore.impl.services.DefaultServiceFactory")
-					.newInstance();
-		} catch (InstantiationException e) {
-			throw new IllegalStateException(e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException(e);
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
-		}
+//		try {
+//			serviceFactory = (ServiceFactory) Class.forName(
+//							"com.worksap.bootcamp.spring.bookstore.impl.services.DefaultServiceFactory")
+//					.newInstance();
+//		} catch (InstantiationException e) {
+//			throw new IllegalStateException(e);
+//		} catch (IllegalAccessException e) {
+//			throw new IllegalStateException(e);
+//		} catch (ClassNotFoundException e) {
+//			throw new IllegalStateException(e);
+//		}
 	}
 
 //	@GET

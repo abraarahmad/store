@@ -2,8 +2,11 @@ package com.worksap.bootcamp.spring.bookstore.impl.dao;
 
 import java.util.Hashtable;
 
+import org.springframework.stereotype.Component;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dao.FlashDao;
 
+@Component
 public class FlashDaoImpl implements FlashDao {
 	private static final Hashtable<String, Object> store = new Hashtable<String, Object>();
 

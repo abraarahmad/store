@@ -1,5 +1,8 @@
 package com.worksap.bootcamp.spring.bookstore.impl.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.worksap.bootcamp.spring.bookstore.impl.dao.DefaultDaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.DaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.services.CartService;
@@ -9,9 +12,22 @@ import com.worksap.bootcamp.spring.bookstore.spec.services.ManageOrderService;
 import com.worksap.bootcamp.spring.bookstore.spec.services.OrderService;
 import com.worksap.bootcamp.spring.bookstore.spec.services.ServiceFactory;
 
+@Component
 public class DefaultServiceFactory implements ServiceFactory {
 	private final DaoFactory daoFactory;
+	
+	@Autowired
+	public CartService cartService;
+	@Autowired
+	public ItemService itemService;
+	@Autowired
+	public OrderService orderService;
+	@Autowired
+	public ManageOrderService manageOrderService;
+	@Autowired
+	public FlashService flashService;
 
+	@Autowired
 	public DefaultServiceFactory(DaoFactory daoFactory) {
 		this.daoFactory = daoFactory;
 	}
@@ -22,31 +38,26 @@ public class DefaultServiceFactory implements ServiceFactory {
 
 	@Override
 	public CartService getCartService() {
-		return new CartServiceImpl(daoFactory.getTransaction(),
-				daoFactory.getCartItemRelationDao(), daoFactory.getItemDao(), daoFactory.getStockDao());
+		return cartService;
 	}
 
 	@Override
 	public ItemService getItemService() {
-		return new ItemServiceImpl(daoFactory.getTransaction(),
-				daoFactory.getItemDao(), daoFactory.getStockDao());
+		return itemService;
 	}
 
 	@Override
 	public OrderService getOrderService() {
-		return new OrderServiceImpl(daoFactory.getOrderHeaderDao(),
-				daoFactory.getOrderDetailDao(), daoFactory.getStockDao(),
-				daoFactory.getCartItemRelationDao(), daoFactory.getItemDao(),
-				daoFactory.getTransaction());
+		return orderService;
 	}
 
 	@Override
 	public ManageOrderService getManageOrderService() {
-		return new ManageOrderServiceImpl(daoFactory.getTransaction(), daoFactory.getOrderHeaderDao(), daoFactory.getOrderDetailDao());
+		return manageOrderService;
 	}
 
 	@Override
 	public FlashService getFlashService() {
-		return new FlashServiceImpl(daoFactory.getFlashDao());
+		return flashService;
 	}
 }

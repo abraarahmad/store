@@ -8,7 +8,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.worksap.bootcamp.spring.bookstore.spec.dao.DaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
@@ -17,6 +20,7 @@ import com.worksap.bootcamp.spring.bookstore.spec.dto.ItemStock;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
 import com.worksap.bootcamp.spring.bookstore.spec.services.ItemService;
 
+@Component
 public class ItemServiceImpl implements ItemService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,10 +28,11 @@ public class ItemServiceImpl implements ItemService {
 	private final StockDao stockDao;
 	private final Transaction transaction;
 
-	public ItemServiceImpl(Transaction transaction, ItemDao itemDao, StockDao stockDao) {
-		this.itemDao = itemDao;
-		this.stockDao = stockDao;
-		this.transaction = transaction;
+	@Autowired
+	public ItemServiceImpl(Transaction transaction, DaoFactory daoFactory) {
+		this.itemDao = daoFactory.getItemDao();
+		this.stockDao = daoFactory.getStockDao();
+		this.transaction = daoFactory.getTransaction();
 	}
 
 	@Override
