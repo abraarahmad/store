@@ -23,21 +23,21 @@
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
-			<version>2.11</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>2.11</version>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.ext</groupId>
-			<artifactId>jersey-mvc-jsp</artifactId>
-			<version>2.11</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.glassfish.jersey.containers</groupId> -->
+<!-- 			<artifactId>jersey-container-servlet</artifactId> -->
+<!-- 			<version>2.11</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.glassfish.jersey.core</groupId> -->
+<!-- 			<artifactId>jersey-server</artifactId> -->
+<!-- 			<version>2.11</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.glassfish.jersey.ext</groupId> -->
+<!-- 			<artifactId>jersey-mvc-jsp</artifactId> -->
+<!-- 			<version>2.11</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>
@@ -46,12 +46,12 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
+			<version>3.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.4.180</version>
+			<version>1.4.193</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -87,6 +87,43 @@
 			<version>0.11.4.1</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+   			<artifactId>jackson-databind</artifactId>
+   			<version>2.5.4</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-core</artifactId>
+    		<version>4.1.4.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-context</artifactId>
+    		<version>4.1.6.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-web</artifactId>
+    		<version>4.1.4.RELEASE</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-webmvc</artifactId>
+		    <version>4.1.4.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.springframework</groupId>
+   			<artifactId>spring-jdbc</artifactId>
+    		<version>4.1.4.RELEASE</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -95,8 +132,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>

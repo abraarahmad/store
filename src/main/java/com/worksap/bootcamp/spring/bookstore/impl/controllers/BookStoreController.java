@@ -10,14 +10,27 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+//import javax.ws.rs.FormParam;
+//import javax.ws.rs.GET;
+//import javax.ws.rs.POST;
+//import javax.ws.rs.Path;
+//import javax.ws.rs.Produces;
+//import javax.ws.rs.core.Context;
+//import javax.ws.rs.core.MediaType;
+//import javax.ws.rs.core.Response;
+
+
+
+
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.worksap.bootcamp.spring.bookstore.impl.view.CartView;
 import com.worksap.bootcamp.spring.bookstore.impl.view.ItemListView;
@@ -35,14 +48,17 @@ import com.worksap.bootcamp.spring.bookstore.spec.services.OrderService.StockSho
 import com.worksap.bootcamp.spring.bookstore.spec.services.OrderService.StockShortageException;
 import com.worksap.bootcamp.spring.bookstore.spec.services.ServiceFactory;
 
-@Path("/bookstore")
-@Produces(MediaType.TEXT_HTML)
+//@Path("/bookstore")
+//@Produces(MediaType.TEXT_HTML)
+@RequestMapping(value = "/bookstore", produces = "text/html")
+@Controller
 public class BookStoreController {
 	private static final Charset MS932 = Charset.forName("MS932");
 	private static final String FLASH_ORDERED_CART = "orderedCart";
 	private static final String FLASH_STOCK_SHORTAGE = "stockShortage";
 
-	@Context
+	//@Context
+	@Autowired
 	private HttpServletRequest request;
 
 	private final ServiceFactory serviceFactory;
@@ -61,17 +77,19 @@ public class BookStoreController {
 		}
 	}
 
-	@GET
-	@Path("/")
-	public Response showList() {
+//	@GET
+//	@Path("/")
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public ModelAndView showList() {
 		Iterable<ItemStock> items = serviceFactory.getItemService().getOnSale();
 		return view("/index.jsp", new ItemListView(items));
 	}
 
-	@POST
-	@Path("/addCart")
-	public Response addCart(@FormParam("item-id") int itemId,
-			@FormParam("amount") int amount) {
+//	@POST
+//	@Path("/addCart")
+	@RequestMapping(value = "/addCart", method = RequestMethod.POST)
+	public ModelAndView addCart(@RequestParam("item-id") int itemId,
+			@RequestParam("amount") Integer amount) {
 		CartService cartService = serviceFactory.getCartService();
 		List<String> messages = new ArrayList<String>();
 
@@ -89,7 +107,7 @@ public class BookStoreController {
 		return showCart(messages);
 	}
 
-	private Response showCart(List<String> messages) {
+	private ModelAndView showCart(List<String> messages) {
 		CartService cartService = serviceFactory.getCartService();
 		String userId = request.getSession().getId();
 		Cart cart = cartService.getCart(userId);
@@ -97,15 +115,20 @@ public class BookStoreController {
 		return view("/cart.jsp", new CartView(cart, messages));
 	}
 
-	@GET
-	@Path("/showCart")
-	public Response showCart() {
+//	@GET
+//	@Path("/showCart")
+	@RequestMapping(value = "/showCart", method = RequestMethod.GET)
+	public ModelAndView showCart() {
 		return showCart(new ArrayList<String>());
 	}
 
-	@POST
-	@Path("/removeFromCart")
-	public Response removeFromCart(@FormParam("item-id") int itemId) {
+//	@POST
+//	@Path("/removeFromCart")
+	@RequestMapping(value = "/removeFromCart", method = RequestMethod.POST)
+	public ModelAndView removeFromCart(int itemId) {
+		
+		itemId = Integer.parseInt(request.getParameter("item-id"));
+		
 		CartService cartService = serviceFactory.getCartService();
 		String userId = request.getSession().getId();
 		cartService.removeItem(userId, itemId);
@@ -113,9 +136,10 @@ public class BookStoreController {
 		return showCart();
 	}
 
-	@POST
-	@Path("/clearCart")
-	public Response clearCart() {
+//	@POST
+//	@Path("/clearCart")
+	@RequestMapping(value = "/clearCart", method = RequestMethod.POST)
+	public ModelAndView clearCart() {
 		CartService cartService = serviceFactory.getCartService();
 		String userId = request.getSession().getId();
 		cartService.clear(userId);
@@ -123,9 +147,10 @@ public class BookStoreController {
 		return showCart();
 	}
 
-	@GET
-	@Path("/prepareOrder")
-	public Response prepareOrder() {
+//	@GET
+//	@Path("/prepareOrder")
+	@RequestMapping(value = "/prepareOrder", method = RequestMethod.GET)
+	public ModelAndView prepareOrder() {
 		CartService cartService = serviceFactory.getCartService();
 		String userId = request.getSession().getId();
 		Cart cart = cartService.getCart(userId);
@@ -137,9 +162,14 @@ public class BookStoreController {
 		return view("/order.jsp", new OrderView(cart, new Customer("", ""), new HashMap<String, String>()));
 	}
 
-	@POST
-	@Path("/order")
-	public Response order(@FormParam("name") String name, @FormParam("address") String address ) {
+//	@POST
+//	@Path("/order")
+	@RequestMapping(value = "/order", method = RequestMethod.POST)
+	public ModelAndView order(String name,String address ) {
+		
+		name =  request.getParameter("name");
+		address = request.getParameter("address");
+		
 		Map<String, String> messages = validate(name, address);
 
 		String userId = request.getSession().getId();
@@ -204,9 +234,10 @@ public class BookStoreController {
 		return null;
 	}
 
-	@GET
-	@Path("/thanks")
-	public Response thanks() {
+//	@GET
+//	@Path("/thanks")
+	@RequestMapping(value = "/thanks", method = RequestMethod.GET)
+	public ModelAndView thanks() {
 		FlashService flashService = serviceFactory.getFlashService();
 		Cart orderHeaderId = flashService.get(FLASH_ORDERED_CART, Cart.class);
 
@@ -217,9 +248,10 @@ public class BookStoreController {
 		return view("/thanks.jsp", new ThanksView(orderHeaderId));
 	}
 
-	@GET
-	@Path("/stockShortage")
-	public Response showRecoveredCart() {
+//	@GET
+//	@Path("/stockShortage")
+	@RequestMapping(value = "/stockShortage", method = RequestMethod.GET)
+	public ModelAndView showRecoveredCart() {
 		FlashService flashService = serviceFactory.getFlashService();
 
 		@SuppressWarnings("unchecked")
