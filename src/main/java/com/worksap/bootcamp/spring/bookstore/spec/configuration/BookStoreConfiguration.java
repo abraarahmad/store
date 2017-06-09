@@ -1,8 +1,14 @@
 package com.worksap.bootcamp.spring.bookstore.spec.configuration;
 
+import java.util.Arrays;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +26,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @ComponentScan("com.worksap.bootcamp.spring.bookstore")
+//@EnableCaching
 @EnableTransactionManagement
 @EnableWebMvc
 public class BookStoreConfiguration extends WebMvcConfigurerAdapter {
@@ -29,6 +36,14 @@ public class BookStoreConfiguration extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/images/**").addResourceLocations("/images/");
     }
 
+    
+//    @Bean
+//    public CacheManager cacheManager() {
+//        SimpleCacheManager cacheManager = new SimpleCacheManager();
+//        cacheManager.setCaches(Arrays.asList(new ConcurrentMapCache("item")));
+//        return cacheManager;
+//    }
+    
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();

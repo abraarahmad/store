@@ -120,9 +120,9 @@ public class BookStoreController {
 //	@POST
 //	@Path("/removeFromCart")
 	@RequestMapping(value = "/removeFromCart", method = RequestMethod.POST)
-	public ModelAndView removeFromCart(int itemId) {
+	public ModelAndView removeFromCart(@RequestParam("item-id") int itemId) {
 		
-		itemId = Integer.parseInt(request.getParameter("item-id"));
+		//itemId = Integer.parseInt(request.getParameter("item-id"));
 		
 		CartService cartService = serviceFactory.getCartService();
 		String userId = request.getSession().getId();

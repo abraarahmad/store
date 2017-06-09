@@ -10,9 +10,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jdk.nashorn.internal.ir.CatchNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -52,20 +55,19 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 
 	@Override
 	public CartItemRelation findByUserIdAndItemId(String userId, int itemId) throws IOException {
-		  return DataAccessUtils.requiredSingleResult(
-		      template.query("select user_id, item_id, amount from cart_items where item_id = ? and user_id = ?",
-		          ps -> {
-		              ps.setInt(1, itemId);
-		              ps.setString(2, userId);
-		          },
-		          (rs, rowNum) -> { 
-		        	  				  if(rs==null){
-		        	  					  return null;
-		        	  				  }
-		                        	  return new CartItemRelation(rs.getString(1), rs.getInt(2), rs.getInt(3));
-		        	                }
-		                   
-		          ));
+		try{
+			return DataAccessUtils.requiredSingleResult(
+				      template.query("select user_id, item_id, amount from cart_items where item_id = ? and user_id = ?",
+				          ps -> {
+				              ps.setInt(1, itemId);
+				              ps.setString(2, userId);
+				          },
+				          (rs, rowNum) -> new CartItemRelation(rs.getString(1), rs.getInt(2), rs.getInt(3))
+				          ));
+		}catch(EmptyResultDataAccessException e){
+			return null;
+		}
+		  
 		}
 
 	@Override

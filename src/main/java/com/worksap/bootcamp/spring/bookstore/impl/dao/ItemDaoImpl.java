@@ -30,6 +30,7 @@ public class ItemDaoImpl implements ItemDao {
 	    this.template = template;
 	  }
 	
+	 
 	@Override
 	public Item find(int id) throws IOException {
 //		PreparedStatement ps = null;
@@ -113,7 +114,6 @@ public class ItemDaoImpl implements ItemDao {
 //		}
 		
 		return template.query("select item_id, item_name, price, picture, release_date from items order by item_id",
-			      ps -> {},
 			      (rs, rowNum) ->new Item(rs.getInt(1), rs.getString(2), rs.getInt(3),
 							rs.getString(4), rs.getDate(5))
 			      );

@@ -18,6 +18,19 @@ public class DefaultDaoFactory implements DaoFactory {
 	//private Transaction transaction;
 	@Autowired
 	private JdbcTemplate template;
+	@Autowired
+	private CartItemRelationDao cartItemRelationDao;
+	@Autowired
+	private ItemDaoImpl itemDaoImpl;
+	@Autowired
+	private StockDaoImpl stockDaoImpl;
+	@Autowired
+	private OrderHeaderDaoImpl orderHeaderDaoImpl;
+	@Autowired
+	private OrderDetailDaoImpl orderDetailDaoImpl;
+	@Autowired
+	private FlashDaoImpl flashDaoImpl;
+	
 	
 	public DefaultDaoFactory() {}
 
@@ -29,17 +42,17 @@ public class DefaultDaoFactory implements DaoFactory {
 	 
 	@Override
 	public CartItemRelationDao getCartItemRelationDao() {
-		return new CartItemRelationDaoImpl(template);
+		return cartItemRelationDao;
 	}
 
 	@Override
 	public ItemDao getItemDao() {
-		return new ItemDaoImpl(template);
+		return itemDaoImpl;
 	}
 
 	@Override
 	public StockDao getStockDao() {
-		return new StockDaoImpl(template);
+		return stockDaoImpl;
 	}
 
 //	@Override
@@ -49,16 +62,16 @@ public class DefaultDaoFactory implements DaoFactory {
 
 	@Override
 	public OrderHeaderDao getOrderHeaderDao() {
-		return new OrderHeaderDaoImpl(template);
+		return orderHeaderDaoImpl;
 	}
 
 	@Override
 	public OrderDetailDao getOrderDetailDao() {
-		return new OrderDetailDaoImpl(template);
+		return orderDetailDaoImpl;
 	}
 
 	@Override
 	public FlashDao getFlashDao() {
-		return new FlashDaoImpl();
+		return flashDaoImpl;
 	}
 }
