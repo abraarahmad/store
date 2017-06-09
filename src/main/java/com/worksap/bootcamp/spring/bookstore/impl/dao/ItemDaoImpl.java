@@ -10,23 +10,33 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Item;
 
 @Component
 public class ItemDaoImpl implements ItemDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	
+	private JdbcTemplate template;
+	
+	 @Autowired
+	  public ItemDaoImpl(JdbcTemplate template) {
+	    this.template = template;
+	  }
+	
 	@Override
-	public Item find(Transaction transaction, int id) throws IOException {
+	public Item find(int id) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select item_id, item_name, price, picture, release_date from items where item_id = ?");
 			ps.setInt(1, id);
 			rs = ps.executeQuery();
@@ -58,12 +68,12 @@ public class ItemDaoImpl implements ItemDao {
 	}
 
 	@Override
-	public List<Item> getAllOrderdById(Transaction transaction) throws IOException {
+	public List<Item> getAllOrderdById() throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select item_id, item_name, price, picture, release_date from items order by item_id");
 			rs = ps.executeQuery();
 

@@ -11,23 +11,34 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
 
 @Component
 public class StockDaoImpl implements StockDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	
+	private JdbcTemplate template;
+
+	  @Autowired
+	  public StockDaoImpl(JdbcTemplate template) {
+	    this.template = template;
+	  }
+	  
+	  
 	@Override
-	public List<Stock> getAllOrderedByItemId(Transaction transaction) throws IOException {
+	public List<Stock> getAllOrderedByItemId() throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("SELECT item_id, stock FROM STOCKS order by item_id");
 			rs = ps.executeQuery();
 
@@ -60,12 +71,12 @@ public class StockDaoImpl implements StockDao {
 	}
 
 	@Override
-	public List<Stock> findByItemIdWithLock(Transaction transaction, Set<Integer> idList) throws IOException {
+	public List<Stock> findByItemIdWithLock(Set<Integer> idList) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			StringBuilder sb = new StringBuilder();
 
 			for (int i = 0 ; i < idList.size(); i++) {
@@ -117,11 +128,11 @@ public class StockDaoImpl implements StockDao {
 	}
 
 	@Override
-	public void updateStock(Transaction transaction, int itemId, int newStock) throws IOException {
+	public void updateStock(int itemId, int newStock) throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("update stocks set stock = ?, prc_date = now() where item_id = ?");
 			ps.setInt(1, newStock);
 			ps.setInt(2, itemId);
@@ -140,12 +151,12 @@ public class StockDaoImpl implements StockDao {
 	}
 
 	@Override
-	public Stock find(Transaction transaction, int itemId) throws IOException {
+	public Stock find(int itemId) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("SELECT item_id, stock FROM STOCKS where item_id = ?");
 			ps.setInt(1, itemId);
 			rs = ps.executeQuery();

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartClearer;
 import com.worksap.bootcamp.spring.bookstore.impl.services.shared.CartGetter;
@@ -19,7 +20,7 @@ import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderDetailDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderHeaderDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Cart;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItem;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderDetail;
@@ -36,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
 	private final StockDao stockDao;
 	private final CartItemRelationDao cartDao;
 	private final ItemDao itemDao;
-	private final Transaction transaction;
+	//private final Transaction transaction;
 
 	@Autowired
 	public OrderServiceImpl(DaoFactory daoFactory) {
@@ -46,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
 		this.stockDao = daoFactory.getStockDao();
 		this.cartDao = daoFactory.getCartItemRelationDao();
 		this.itemDao = daoFactory.getItemDao();
-		this.transaction = daoFactory.getTransaction();
+		//this.transaction = daoFactory.getTransaction();
 	}
 
 	private static class StockCartItemRelation {
@@ -66,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
 			idList.put(cartItem.getItem().getId(), cartItem);
 		}
 
-		List<Stock> stocks = stockDao.findByItemIdWithLock(transaction, idList.keySet());
+		List<Stock> stocks = stockDao.findByItemIdWithLock(idList.keySet());
 		List<StockCartItemRelation> locked = new ArrayList<StockCartItemRelation>();
 
 		for (Stock stock : stocks) {
@@ -88,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
 		return shortageList;
 	}
 
+	
 	private List<StockShortage> reduceCartItemAmount(String userId, Cart cart, List<StockCartItemRelation> shortageList) throws IOException {
 		List<StockShortage> result = new ArrayList<OrderService.StockShortage>();
 
@@ -95,65 +97,59 @@ public class OrderServiceImpl implements OrderService {
 			result.add(new StockShortage(shortage.cartItem.getItem(), shortage.cartItem, shortage.stock));
 
 			if (shortage.stock.getStock() <= 0) {
-				cartDao.remove(transaction, userId, shortage.stock.getItemId());
+				cartDao.remove(userId, shortage.stock.getItemId());
 				continue;
 			}
 
-			cartDao.updateAmount(transaction, userId, shortage.stock.getItemId(), shortage.stock.getStock());
+			cartDao.updateAmount(userId, shortage.stock.getItemId(), shortage.stock.getStock());
 		}
 
 		return result;
 	}
 
+	
+	@Transactional
 	@Override
 	public void order(String userId, String name, String address) throws StockShortageException{
 		checkArgumentOrder(name, address);
 
 		try {
-			transaction.begin();
+			//transaction.begin();
 
-			Cart cart = new CartGetter(cartDao, itemDao).getCart(transaction, userId);
+			Cart cart = new CartGetter(cartDao, itemDao).getCart(userId);
 
 			List<StockCartItemRelation> locked = getStockWithLock(cart);
 			List<StockCartItemRelation> shortages = checkShortage(userId, locked);
 
 			if (!shortages.isEmpty()) {
 				List<StockShortage> stockShortages = reduceCartItemAmount(userId, cart, shortages);
-				transaction.commit();
+				//transaction.commit();
 				throw new StockShortageException(stockShortages);
 			}
 
 			reduceStock(locked);
 			issueOrder(locked, cart, name, address);
 
-			new CartClearer(cartDao).clear(transaction, userId);
+			new CartClearer(cartDao).clear(userId);
 
-			transaction.commit();
+			//transaction.commit();
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
-		} finally {
-			if (transaction.isActive()) {
-				try {
-					transaction.rollback();
-				} catch (RuntimeException e) {
-					logger.warn(e.getMessage(),e);
-				}
-			}
-		}
+		} 
 	}
 
 	private void reduceStock(List<StockCartItemRelation> locked) throws IOException {
 		for (StockCartItemRelation stockCartItemRelation : locked) {
-			stockDao.updateStock(transaction,
+			stockDao.updateStock(
 					stockCartItemRelation.stock.getItemId(),
 					stockCartItemRelation.stock.getStock() - stockCartItemRelation.cartItem.getRelation().getAmount());
 		}
 	}
 
 	private void issueOrder(List<StockCartItemRelation> locked, Cart cart, String name, String address) throws IOException {
-		int orderHeaderId = orderHeaderDao.getSequence(transaction);
+		int orderHeaderId = orderHeaderDao.getSequence();
 
-		orderHeaderDao.create(transaction, new OrderHeader(orderHeaderId, cart.getTotal(), name, address));
+		orderHeaderDao.create(new OrderHeader(orderHeaderId, cart.getTotal(), name, address));
 
 		List<OrderDetail> orderDetails = new ArrayList<OrderDetail>();
 
@@ -161,7 +157,7 @@ public class OrderServiceImpl implements OrderService {
 			orderDetails.add(new OrderDetail(orderHeaderId, stockCartItemRelation.stock.getItemId(), stockCartItemRelation.cartItem.getRelation().getAmount()));
 		}
 
-		orderDetailDao.create(transaction, orderDetails);
+		orderDetailDao.create(orderDetails);
 	}
 
 	private void checkArgumentOrder(String name, String address) {

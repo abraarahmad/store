@@ -6,6 +6,6 @@ import java.util.List;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderDetail;
 
 public interface OrderDetailDao {
-	public void create(Transaction transaction, List<OrderDetail> orderDetails) throws IOException;
-	public List<OrderDetail> findByHeaderId(Transaction transaction, int orderHeaderId) throws IOException;
+	public void create(List<OrderDetail> orderDetails) throws IOException;
+	public List<OrderDetail> findByHeaderId(int orderHeaderId) throws IOException;
 }

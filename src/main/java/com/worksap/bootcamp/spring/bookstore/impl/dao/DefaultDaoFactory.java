@@ -1,6 +1,7 @@
 package com.worksap.bootcamp.spring.bookstore.impl.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
@@ -10,48 +11,50 @@ import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderDetailDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderHeaderDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 
 @Component
 public class DefaultDaoFactory implements DaoFactory {
-	private Transaction transaction;
+	//private Transaction transaction;
+	@Autowired
+	private JdbcTemplate template;
 	
 	public DefaultDaoFactory() {}
 
-	 @Autowired
-	  public  DefaultDaoFactory(Transaction transaction) {
-	    this.transaction = transaction;
-	  }
+//	 @Autowired
+//	  public  DefaultDaoFactory(Transaction transaction) {
+//	    this.transaction = transaction;
+//	  }
 	    
 	 
 	@Override
 	public CartItemRelationDao getCartItemRelationDao() {
-		return new CartItemRelationDaoImpl();
+		return new CartItemRelationDaoImpl(template);
 	}
 
 	@Override
 	public ItemDao getItemDao() {
-		return new ItemDaoImpl();
+		return new ItemDaoImpl(template);
 	}
 
 	@Override
 	public StockDao getStockDao() {
-		return new StockDaoImpl();
+		return new StockDaoImpl(template);
 	}
 
-	@Override
-	public Transaction getTransaction() {
-		return transaction;
-	}
+//	@Override
+//	public Transaction getTransaction() {
+//		return transaction;
+//	}
 
 	@Override
 	public OrderHeaderDao getOrderHeaderDao() {
-		return new OrderHeaderDaoImpl();
+		return new OrderHeaderDaoImpl(template);
 	}
 
 	@Override
 	public OrderDetailDao getOrderDetailDao() {
-		return new OrderDetailDaoImpl();
+		return new OrderDetailDaoImpl(template);
 	}
 
 	@Override

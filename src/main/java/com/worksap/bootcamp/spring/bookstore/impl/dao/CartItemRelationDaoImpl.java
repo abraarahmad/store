@@ -10,22 +10,30 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItemRelation;
 
 @Component
 public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private JdbcTemplate template;
+
+	  @Autowired
+	  public CartItemRelationDaoImpl(JdbcTemplate template) {
+	    this.template = template;
+	  }
+	  
 	@Override
-	public void create(Transaction transaction, CartItemRelation item) throws IOException {
+	public void create(CartItemRelation item) throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("insert into cart_items (user_id, item_id, amount, prc_date) values (?, ?, ?, now())");
 			ps.setString(1, item.getUserId());
 			ps.setInt(2, item.getItemId());
@@ -45,12 +53,12 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	}
 
 	@Override
-	public List<CartItemRelation> findByUserId(Transaction transaction, String userId) throws IOException {
+	public List<CartItemRelation> findByUserId(String userId) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select user_id, item_id, amount from cart_items where user_id = ?");
 			ps.setString(1, userId);
 			rs = ps.executeQuery();
@@ -84,12 +92,12 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	}
 
 	@Override
-	public CartItemRelation findByUserIdAndItemId(Transaction transaction, String userId, int itemId) throws IOException {
+	public CartItemRelation findByUserIdAndItemId(String userId, int itemId) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select user_id, item_id, amount from cart_items where item_id = ? and user_id = ?");
 			ps.setInt(1, itemId);
 			ps.setString(2, userId);
@@ -122,11 +130,11 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	}
 
 	@Override
-	public void updateAmount(Transaction transaction, String userId, int itemId, int newAmount) throws IOException {
+	public void updateAmount(String userId, int itemId, int newAmount) throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("update cart_items set amount = ?, prc_date = now() where user_id = ? and item_id = ?");
 			ps.setInt(1, newAmount);
 			ps.setString(2, userId);
@@ -146,12 +154,12 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	}
 
 	@Override
-	public void remove(Transaction transaction, String userId, int itemId) throws IOException{
+	public void remove(String userId, int itemId) throws IOException{
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("delete from cart_items where user_id = ? and item_id = ?");
 			ps.setString(1, userId);
 			ps.setInt(2, itemId);
@@ -178,12 +186,12 @@ public class CartItemRelationDaoImpl implements CartItemRelationDao {
 	}
 
 	@Override
-	public void removeByUserId(Transaction transaction, String userId)
+	public void removeByUserId(String userId)
 			throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("delete from cart_items where user_id = ?");
 			ps.setString(1, userId);
 			ps.executeUpdate();

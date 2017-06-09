@@ -6,6 +6,6 @@ public interface DaoFactory {
 	public StockDao getStockDao();
 	public OrderHeaderDao getOrderHeaderDao();
 	public OrderDetailDao getOrderDetailDao();
-	public Transaction getTransaction();
+	//public Transaction getTransaction();
 	public FlashDao getFlashDao();
 }

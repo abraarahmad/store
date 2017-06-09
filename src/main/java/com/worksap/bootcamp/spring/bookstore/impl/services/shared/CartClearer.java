@@ -3,7 +3,7 @@ package com.worksap.bootcamp.spring.bookstore.impl.services.shared;
 import java.io.IOException;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 
 public class CartClearer {
 	private final CartItemRelationDao cartDao;
@@ -12,9 +12,9 @@ public class CartClearer {
 		this.cartDao = cartDao;
 	}
 
-	public void clear(Transaction transaction, String userId) {
+	public void clear(String userId) {
 		try {
-			cartDao.removeByUserId(transaction, userId);
+			cartDao.removeByUserId(userId);
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}

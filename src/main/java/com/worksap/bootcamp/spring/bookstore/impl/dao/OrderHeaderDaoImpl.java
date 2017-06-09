@@ -10,22 +10,31 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderHeaderDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderHeader;
 
 @Component
 public class OrderHeaderDaoImpl implements OrderHeaderDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private JdbcTemplate template;
+
+	  @Autowired
+	  public OrderHeaderDaoImpl(JdbcTemplate template) {
+	    this.template = template;
+	  }
+	  
 	@Override
-	public void create(Transaction transaction, OrderHeader orderHeader) throws IOException {
+	public void create(OrderHeader orderHeader) throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("insert into order_headers (order_header_id, total_amount, customer_name, customer_address, order_date, prc_date) values (?, ?, ?, ?, now(), now())");
 			ps.setInt(1, orderHeader.getId());
 			ps.setInt(2, orderHeader.getTotal());
@@ -46,12 +55,12 @@ public class OrderHeaderDaoImpl implements OrderHeaderDao {
 	}
 
 	@Override
-	public int getSequence(Transaction transaction) throws IOException {
+	public int getSequence() throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select order_header_id_seq.nextval");
 			rs = ps.executeQuery();
 
@@ -82,12 +91,12 @@ public class OrderHeaderDaoImpl implements OrderHeaderDao {
 	}
 
 	@Override
-	public List<OrderHeader> findAll(Transaction transaction) throws IOException {
+	public List<OrderHeader> findAll() throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select order_header_id, total_amount, customer_name, customer_address, order_date from order_headers order by order_header_id");
 			rs = ps.executeQuery();
 
@@ -120,12 +129,12 @@ public class OrderHeaderDaoImpl implements OrderHeaderDao {
 	}
 
 	@Override
-	public OrderHeader find(Transaction transaction, int orderHeaderId) throws IOException {
+	public OrderHeader find(int orderHeaderId) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select order_header_id, total_amount, customer_name, customer_address, order_date from order_headers where order_header_id = ?");
 			ps.setInt(1, orderHeaderId);
 			rs = ps.executeQuery();

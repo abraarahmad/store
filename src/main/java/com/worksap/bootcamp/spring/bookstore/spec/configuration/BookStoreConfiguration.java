@@ -7,7 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jndi.JndiTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @ComponentScan("com.worksap.bootcamp.spring.bookstore")
+@EnableTransactionManagement
 @EnableWebMvc
 public class BookStoreConfiguration extends WebMvcConfigurerAdapter {
     @Override
@@ -48,4 +52,11 @@ public class BookStoreConfiguration extends WebMvcConfigurerAdapter {
     public JdbcTemplate jdbcTemplate(DataSource datasource) throws Exception {
         return new JdbcTemplate(datasource);
     }
+    
+    @Autowired
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) throws Exception {
+        return new DataSourceTransactionManager(dataSource);
+    }
+    
 }

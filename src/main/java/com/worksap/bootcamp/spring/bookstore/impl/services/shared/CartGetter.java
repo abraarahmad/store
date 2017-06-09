@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.CartItemRelationDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Cart;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItem;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItemRelation;
@@ -20,16 +20,16 @@ public class CartGetter {
 		this.itemDao = itemDao;
 	}
 
-	public Cart getCart(Transaction transaction, String userId) {
+	public Cart getCart(String userId) {
 		try {
-			Iterable<CartItemRelation> relations = cartDao.findByUserId(transaction, userId);
+			Iterable<CartItemRelation> relations = cartDao.findByUserId(userId);
 			List<CartItem> cartItems = new ArrayList<CartItem>();
 			int total = 0;
 			boolean valid = true;
 
 			for (CartItemRelation relation : relations) {
-				cartItems.add(new CartItem(relation, itemDao.find(transaction,
-						relation.getItemId())));
+				cartItems.add(new CartItem(relation, itemDao.find(relation
+						.getItemId())));
 			}
 
 			for (CartItem cartItem : cartItems) {

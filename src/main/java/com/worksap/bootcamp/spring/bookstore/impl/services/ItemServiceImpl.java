@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.DaoFactory;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Item;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.ItemStock;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Stock;
@@ -26,15 +26,16 @@ public class ItemServiceImpl implements ItemService {
 
 	private final ItemDao itemDao;
 	private final StockDao stockDao;
-	private final Transaction transaction;
+	//private final Transaction transaction;
 
 	@Autowired
-	public ItemServiceImpl(Transaction transaction, DaoFactory daoFactory) {
+	public ItemServiceImpl(DaoFactory daoFactory) {
 		this.itemDao = daoFactory.getItemDao();
 		this.stockDao = daoFactory.getStockDao();
-		this.transaction = daoFactory.getTransaction();
+		//this.transaction = daoFactory.getTransaction();
 	}
 
+	@Transactional
 	@Override
 	public List<ItemStock> getOnSale() {
 		return filterItemStock(findItemStock());
@@ -54,12 +55,13 @@ public class ItemServiceImpl implements ItemService {
 		return target;
 	}
 
+	
 	private List<ItemStock> findItemStock() {
 		try {
-			transaction.begin();
+			//transaction.begin();
 
-			Iterable<Item> items = itemDao.getAllOrderdById(transaction);
-			Iterator<Stock> stocks = stockDao.getAllOrderedByItemId(transaction).iterator();
+			Iterable<Item> items = itemDao.getAllOrderdById();
+			Iterator<Stock> stocks = stockDao.getAllOrderedByItemId().iterator();
 			List<ItemStock> itemStocks = new ArrayList<ItemStock>();
 			Stock currentStock = stocks.hasNext() ? stocks.next() : null;
 
@@ -85,19 +87,11 @@ public class ItemServiceImpl implements ItemService {
 				}
 			}
 
-			transaction.commit();
+			//transaction.commit();
 
 			return itemStocks;
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
-		} finally {
-			if (transaction.isActive()) {
-				try {
-					transaction.rollback();
-				} catch (RuntimeException e) {
-					logger.warn(e.getMessage(),e);
-				}
-			}
 		}
 	}
 }

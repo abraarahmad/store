@@ -6,8 +6,8 @@ import java.util.List;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderHeader;
 
 public interface OrderHeaderDao {
-	public void create(Transaction transaction, OrderHeader orderHeader) throws IOException;
-	public int getSequence(Transaction transaction) throws IOException;
-	public List<OrderHeader> findAll(Transaction transaction) throws IOException;
-	public OrderHeader find(Transaction transaction, int orderHeaderId) throws IOException;
+	public void create(OrderHeader orderHeader) throws IOException;
+	public int getSequence() throws IOException;
+	public List<OrderHeader> findAll() throws IOException;
+	public OrderHeader find(int orderHeaderId) throws IOException;
 }

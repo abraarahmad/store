@@ -10,22 +10,31 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderDetailDao;
-import com.worksap.bootcamp.spring.bookstore.spec.dao.Transaction;
+
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderDetail;
 
 @Component
 public class OrderDetailDaoImpl implements OrderDetailDao {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private JdbcTemplate template;
+
+	  @Autowired
+	  public OrderDetailDaoImpl(JdbcTemplate template) {
+	    this.template = template;
+	  }
+	  
 	@Override
-	public void create(Transaction transaction,List<OrderDetail> orderDetails) throws IOException {
+	public void create(List<OrderDetail> orderDetails) throws IOException {
 		PreparedStatement ps = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("insert into order_details (order_header_id, item_id, amount, prc_date) values (?, ?, ?, now())");
 
 			for (OrderDetail orderDetail : orderDetails) {
@@ -50,12 +59,12 @@ public class OrderDetailDaoImpl implements OrderDetailDao {
 	}
 
 	@Override
-	public List<OrderDetail> findByHeaderId(Transaction transaction, int orderHeaderId) throws IOException {
+	public List<OrderDetail> findByHeaderId(int orderHeaderId) throws IOException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			Connection con = transaction.getResource(Connection.class);
+			Connection con = template.getDataSource().getConnection();
 			ps = con.prepareStatement("select order_header_id, item_id, amount from order_details where order_header_id = ?");
 			ps.setInt(1, orderHeaderId);
 			rs = ps.executeQuery();
