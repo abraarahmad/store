@@ -1,5 +1,6 @@
 package com.worksap.bootcamp.spring.bookstore.spec.dto;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Cart {
@@ -8,12 +9,12 @@ public class Cart {
 	private final boolean isValid;
 
 	public Cart(List<CartItem> cartItems, int total, boolean isValid) {
-		this.cartItems = cartItems;
+		this.cartItems = Collections.unmodifiableList(cartItems);;
 		this.total = total;
 		this.isValid = isValid;
 	}
 
-	public Iterable<CartItem> getCartItems() {
+	public List<CartItem> getCartItems() {
 		return cartItems;
 	}
 

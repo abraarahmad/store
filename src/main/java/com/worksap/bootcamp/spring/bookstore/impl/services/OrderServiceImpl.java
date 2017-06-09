@@ -1,10 +1,12 @@
 package com.worksap.bootcamp.spring.bookstore.impl.services;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,6 @@ import com.worksap.bootcamp.spring.bookstore.spec.dao.ItemDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderDetailDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.OrderHeaderDao;
 import com.worksap.bootcamp.spring.bookstore.spec.dao.StockDao;
-
 import com.worksap.bootcamp.spring.bookstore.spec.dto.Cart;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.CartItem;
 import com.worksap.bootcamp.spring.bookstore.spec.dto.OrderDetail;
@@ -61,32 +62,24 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private List<StockCartItemRelation> getStockWithLock(Cart cart) throws IOException {
-		Map<Integer, CartItem> idList = new HashMap<Integer, CartItem>();
-
-		for (CartItem cartItem : cart.getCartItems()) {
-			idList.put(cartItem.getItem().getId(), cartItem);
-		}
-
-		List<Stock> stocks = stockDao.findByItemIdWithLock(idList.keySet());
-		List<StockCartItemRelation> locked = new ArrayList<StockCartItemRelation>();
-
-		for (Stock stock : stocks) {
-			locked.add(new StockCartItemRelation(stock, idList.get(stock.getItemId())));
-		}
-
-		return locked;
+		
+		Map<Integer, CartItem> idList = cart.getCartItems().stream()
+                .collect(Collectors.toMap(
+                        cartItem -> cartItem.getItem().getId(),
+                        cartItem -> cartItem
+                ));
+        List<Stock> stocks = stockDao.findByItemIdWithLock(idList.keySet());
+        List<StockCartItemRelation> locked = stocks.stream()
+                .map(stock -> new StockCartItemRelation(stock, idList.get(stock.getItemId())))
+                .collect(Collectors.toList());
+        return locked;
 	}
 
 	private List<StockCartItemRelation> checkShortage(String userId, List<StockCartItemRelation> stocks) {
-		List<StockCartItemRelation> shortageList = new ArrayList<OrderServiceImpl.StockCartItemRelation>();
-
-		for (StockCartItemRelation stockCartRelation : stocks) {
-			if (stockCartRelation.stock.getStock() < stockCartRelation.cartItem.getRelation().getAmount()) {
-				shortageList.add(stockCartRelation);
-			}
-		}
-
-		return shortageList;
+        List<StockCartItemRelation> shortageList = stocks.stream()
+                .filter(scr -> scr.stock.getStock() < scr.cartItem.getRelation().getAmount())
+                .collect(Collectors.toList());
+        return shortageList;
 	}
 
 	
@@ -139,25 +132,30 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	private void reduceStock(List<StockCartItemRelation> locked) throws IOException {
-		for (StockCartItemRelation stockCartItemRelation : locked) {
-			stockDao.updateStock(
-					stockCartItemRelation.stock.getItemId(),
-					stockCartItemRelation.stock.getStock() - stockCartItemRelation.cartItem.getRelation().getAmount());
-		}
+		 try {
+             locked.forEach(stockCartItemRelation -> {
+                     try {
+                             stockDao.updateStock(stockCartItemRelation.stock.getItemId(),
+                                             stockCartItemRelation.stock.getStock() - stockCartItemRelation.cartItem.getRelation().getAmount());
+                     } catch (IOException e) {
+                             throw new UncheckedIOException(e);
+                     }
+             });
+     } catch (UncheckedIOException e) {
+             throw e.getCause();
+     }
 	}
 
 	private void issueOrder(List<StockCartItemRelation> locked, Cart cart, String name, String address) throws IOException {
 		int orderHeaderId = orderHeaderDao.getSequence();
 
-		orderHeaderDao.create(new OrderHeader(orderHeaderId, cart.getTotal(), name, address));
+        orderHeaderDao.create(new OrderHeader(orderHeaderId, cart.getTotal(), name, address));
 
-		List<OrderDetail> orderDetails = new ArrayList<OrderDetail>();
+        List<OrderDetail> orderDetails = locked.stream()
+                        .map(stockCartItemRelation -> new OrderDetail(orderHeaderId, stockCartItemRelation.stock.getItemId(), stockCartItemRelation.cartItem.getRelation().getAmount()))
+                        .collect(Collectors.toList());
 
-		for (StockCartItemRelation stockCartItemRelation : locked) {
-			orderDetails.add(new OrderDetail(orderHeaderId, stockCartItemRelation.stock.getItemId(), stockCartItemRelation.cartItem.getRelation().getAmount()));
-		}
-
-		orderDetailDao.create(orderDetails);
+        orderDetailDao.create(orderDetails);
 	}
 
 	private void checkArgumentOrder(String name, String address) {
