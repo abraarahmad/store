@@ -20,7 +20,7 @@ import com.worksap.bootcamp.spring.bookstore.spec.dto.Item;
 
 @Component
 public class ItemDaoImpl implements ItemDao {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	//private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	
 	private JdbcTemplate template;

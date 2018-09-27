@@ -1,16 +1,12 @@
 package com.worksap.bootcamp.spring.bookstore.impl.dao;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+
 import java.util.List;
 
-import jdk.nashorn.internal.ir.CatchNode;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

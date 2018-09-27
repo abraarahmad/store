@@ -23,6 +23,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import com.worksap.company.access.KeyValueAccess;
+import com.worksap.company.access.cassandra.CassandraAccessDatastax;
+
 
 @Configuration
 @ComponentScan("com.worksap.bootcamp.spring.bookstore")
@@ -73,5 +76,11 @@ public class BookStoreConfiguration extends WebMvcConfigurerAdapter {
     public PlatformTransactionManager transactionManager(DataSource dataSource) throws Exception {
         return new DataSourceTransactionManager(dataSource);
     }
+    
+    
+//    @Bean
+//    public KeyValueAccess keyValueAccess() {
+//        return new CassandraAccessDatastax();
+//    }
     
 }
